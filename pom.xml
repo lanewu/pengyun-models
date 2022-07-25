@@ -1,11 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <artifactId>pengyun-main</artifactId>
-        <groupId>pengyun</groupId>
-        <version>2.8.0</version>
-    </parent>
+    <groupId>pengyun</groupId>
+    <version>2.8.0</version>
 
     <artifactId>pengyun-models</artifactId>
     <!-- NOTE: this pom can overwrite the modified BroadcastLog.java to generated one due to the performance improvement. Wheneven src/main/resources/protocol-model/broadcastlog.proto is changed, we have to modified BroadcastLog.java again based on newly generated BroadcastLog.java. I know it is very lame but I can't find a better way so far. In very near future, we have to abandon this hacking method -->
@@ -19,7 +16,7 @@
     <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
-        <version>3.5.1</version>
+        <version>3.0.0</version>
     </dependency>
     <!-- dependency>
         <groupId>com.github.davidmoten</groupId>

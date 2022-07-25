@@ -1,8 +1,7 @@
 <project name="pengyun-models" default="all" basedir=".">
         <property environment="SystemVariable" />  
-	<echo message="${SystemVariable.PROTOBUF_HOME}" /> 
 	<property name="procotol.heartbeat.output.dir.java" value="${basedir}/src/main/java" />
-	<property name="protoc" value="${SystemVariable.PROTOBUF_HOME}" />
+	<property name="protoc" value="protoc" />
 	<property name="procotol.model.src.dir.java" value="${basedir}/src/main/resources/protocol-model" />
 
 	<target name="clean-procotol-message" description="Removes proc generated files.">

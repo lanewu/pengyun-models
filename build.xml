@@ -7,14 +7,13 @@
 	<property name="thrift.generated.java.src.dir" value="${basedir}/thrift-generated-src-java/py/thrift" />
 	<property name="thrift.generated.perl.src.dir" value="${basedir}/thrift-generated-src-perl/" />
 	<property name="thrift.output.dir.cpp" value="${basedir}/thrift-generated-src-cpp" />
-	<property name="thrift" value="/usr/local/bin/thrift" />
+	<property name="thrift" value="thrift" />
 	<property name="src.main.py.thrift.dir" value="${basedir}/src/main/java/py/thrift" />
 	<property name="src.scriptcontainer.perl.lib.dir" value="${basedir}/../pengyun-script_container/libs_src/pengyun/" />
     <property name="src.openstack.common.lib.dir" value="${basedir}/../pengyun-openstack_adaptors/src/main/python/common" />
     <property name="src.openstack.python.lib.dir" value="${basedir}/../pengyun-openstack_adaptors/src/main/python/common/pymodels" />
 	<!--property name="build.dir" location="target" />
     <property name="classes.dir" value="${build.dir}/classes"/-->
-	<property name="thrift" value="/usr/local/bin/thrift" />
 
 	<target name="clean-thrift-message" description="Removes thrift generated files.">
 		<delete dir="${thrift.output.dir.java}" />
