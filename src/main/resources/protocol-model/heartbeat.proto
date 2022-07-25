@@ -1,0 +1,27 @@
+/**
+*0  Varint:  int32, int64, uint32, uint64, sint32, sint64, bool, enum
+*1  64-bit:  fixed64, sfixed64, double
+*2  Length-delimi:  string, bytes, embedded messages, packed repeated fields
+*3  Start group:  Groups (deprecated)
+*4  End group:  Groups (deprecated)
+*5  32-bit: fixed32, sfixed32, float
+*/
+
+
+
+option java_package = "py.proto";
+
+message DataNodeHeartbeatRequest {
+          required int64 requestId = 1;
+          required int64 volumeId = 2;
+          required int32 segmentIndex = 3;
+          required int32 epoch = 4;
+          required int32 generation = 5;
+      }
+message DataNodeHeartbeatResponse {
+          required int64 requestId = 1;
+          required int64 InstanceId = 2;
+          required int32 resultCode = 3;
+          required int32 returnEpoch = 4;
+          optional string returnMessage = 5;
+      }

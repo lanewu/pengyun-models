@@ -1,0 +1,31 @@
+<project name="pengyun-models" default="all" basedir=".">
+	<property environment="SystemVariable" />
+	<echo message="${SystemVariable.FLATBUFFER_HOME}" />
+	<property name="flatbuffer.output.dir.java" value="${basedir}/src/main/java" />
+	<property name="flatc" value="${SystemVariable.FLATBUFFER_HOME}" />
+	<property name="flatbuffer.model.src.dir" value="${basedir}/src/main/resources/flat-buffers-model" />
+
+	<target name="clean-flatbuffer-message" description="Removes flatc generated files.">
+		<delete dir="${flatbuffer.output.dir.java}/py/flatbuffer" />
+	</target>
+
+	<!-- target: init -->
+	<target name="init" description="Sets up the initial structure." depends="clean-flatbuffer-message">
+		<mkdir dir="${flatbuffer.output.dir.java}/py/flatbuffer" />
+	</target>
+
+	<target name="compile-flatbuffer-message-java" description="Compile flatbuffer message for java" depends="init">
+		<apply executable="${flatc}" parallel="false">
+			<arg value="--java" />
+			<arg value="--binary" />
+			<arg line="-o ${flatbuffer.output.dir.java}" />
+			<arg line="-I ${flatbuffer.model.src.dir}" />
+			<fileset dir="${flatbuffer.model.src.dir}" includes="*.fbs" />
+		</apply>
+	</target>
+
+
+	<target name="clean" depends="clean-flatbuffer-message" />
+	<target name="all" depends="compile-flatbuffer-message-java" />
+</project>
+

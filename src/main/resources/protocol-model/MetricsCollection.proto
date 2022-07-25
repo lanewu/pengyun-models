@@ -1,0 +1,8 @@
+option java_package = "py.proto";
+
+message PBMetricsCollectionResolveRequest {
+    required int64 requestId = 1;
+}
+message PBMetricsCollectionResolveResponse {
+    required int64 requestId = 1;
+}

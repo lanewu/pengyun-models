@@ -1,0 +1,124 @@
+<project name="pengyun-models" default="all" basedir=".">
+	<property name="thrift.model.dir" value="${basedir}/src/main/resources/thrift-model" />
+	<property name="thrift.output.dir.java" value="${basedir}/thrift-generated-src-java" />
+	<property name="thrift.output.dir.perl" value="${basedir}/thrift-generated-src-perl" />
+	<property name="thrift.output.dir.ruby" value="${basedir}/thrift-generated-src-ruby" />
+    <property name="thrift.output.dir.python" value="${basedir}/thrift-generated-src-python/" />
+	<property name="thrift.generated.java.src.dir" value="${basedir}/thrift-generated-src-java/py/thrift" />
+	<property name="thrift.generated.perl.src.dir" value="${basedir}/thrift-generated-src-perl/" />
+	<property name="thrift.output.dir.cpp" value="${basedir}/thrift-generated-src-cpp" />
+	<property name="thrift" value="/usr/local/bin/thrift" />
+	<property name="src.main.py.thrift.dir" value="${basedir}/src/main/java/py/thrift" />
+	<property name="src.scriptcontainer.perl.lib.dir" value="${basedir}/../pengyun-script_container/libs_src/pengyun/" />
+    <property name="src.openstack.common.lib.dir" value="${basedir}/../pengyun-openstack_adaptors/src/main/python/common" />
+    <property name="src.openstack.python.lib.dir" value="${basedir}/../pengyun-openstack_adaptors/src/main/python/common/pymodels" />
+	<!--property name="build.dir" location="target" />
+    <property name="classes.dir" value="${build.dir}/classes"/-->
+	<property name="thrift" value="/usr/local/bin/thrift" />
+
+	<target name="clean-thrift-message" description="Removes thrift generated files.">
+		<delete dir="${thrift.output.dir.java}" />
+		<delete dir="${thrift.output.dir.perl}" />
+		<delete dir="${thrift.output.dir.ruby}" />
+		<delete dir="${thrift.output.dir.cpp}" />
+		<delete dir="${thrift.output.dir.python}" />
+		<delete dir="${src.main.py.thrift.dir}" />
+	</target>
+
+	<!-- target: init -->
+	<target name="init" description="Sets up the initial structure." depends="clean-thrift-message">
+		<mkdir dir="${thrift.output.dir.java}" />
+		<mkdir dir="${thrift.output.dir.perl}" />
+		<mkdir dir="${thrift.output.dir.python}" />
+		<mkdir dir="${thrift.output.dir.ruby}" />
+		<mkdir dir="${thrift.output.dir.cpp}" />
+		<mkdir dir="${src.main.py.thrift.dir}" />
+	</target>
+
+	<target name="compile-thrift-message-java" description="Compile thrift message for java" depends="init">
+		<apply executable="${thrift}" parallel="false">
+			<arg value="--gen" />
+			<arg value="java" />
+			<arg value="--out" />
+			<arg value="${thrift.output.dir.java}" />
+			<fileset dir="${thrift.model.dir}" includes="*.thrift" />
+		</apply>
+	</target>
+
+	<target name="compile-thrift-message-perl" description="Compile thrift message for perl" depends="init">
+		<apply executable="${thrift}" parallel="false">
+			<arg value="--gen" />
+			<arg value="perl" />
+			<arg value="--out" />
+			<arg value="${thrift.output.dir.perl}" />
+			<fileset dir="${thrift.model.dir}" includes="*.thrift" />
+		</apply>
+    </target>
+
+    <target name="compile-thrift-message-python" description="Compile thrift message for python" depends="init">
+        <apply executable="${thrift}" parallel="false">
+			<arg value="--gen" />
+			<arg value="py" />
+			<arg value="--out" />
+			<arg value="${thrift.output.dir.python}" />
+			<fileset dir="${thrift.model.dir}" includes="*.thrift" />
+		</apply>
+	</target>
+
+	<target name="compile-thrift-message-ruby" description="Compile thrift message for ruby" depends="init">
+		<apply executable="${thrift}" parallel="false">
+			<arg value="--gen" />
+			<arg value="rb" />
+			<arg value="--out" />
+			<arg value="${thrift.output.dir.ruby}" />
+			<fileset dir="${thrift.model.dir}" includes="*.thrift" />
+		</apply>
+	</target>
+
+	<target name="compile-thrift-message-cpp" description="Compile thrift message for cpp" depends="init">
+		<apply executable="${thrift}" parallel="false">
+			<arg value="--gen" />
+			<arg value="cpp" />
+			<arg value="--out" />
+			<arg value="${thrift.output.dir.cpp}" />
+			<fileset dir="${thrift.model.dir}" includes="*.thrift" />
+		</apply>
+	</target>
+
+	<target name="copy-thrift-perl" description="copy the perl file." depends="compile-thrift-message-perl">
+		<copy todir="${src.scriptcontainer.perl.lib.dir}">
+			<fileset dir="${thrift.generated.perl.src.dir}">
+			</fileset>
+		</copy>
+	</target>
+
+    <target name="check_exist_openstack_common_lib" depends="compile-thrift-message-python">
+        <condition property="dir.exists">
+            <available file="${src.openstack.common.lib.dir}" type="dir"/>
+        </condition>
+    </target>
+
+    <target name="clean_openstack_pymodels" description="remove old pengyun library for openstack" 
+        depends="check_exist_openstack_common_lib" if="dir.exists">
+        <delete dir="${src.openstack.python.lib.dir}" />
+    </target>
+
+    <target name="copy-thrift-python" description="copy pengyun library to openstack project." 
+        depends="clean_openstack_pymodels">
+		<copy todir="${src.openstack.python.lib.dir}">
+			<fileset dir="${thrift.output.dir.python}">
+			</fileset>
+		</copy>
+    </target>
+
+	<target name="copy-thrift-java" description="copy the java file." depends="compile-thrift-message-java">
+		<copy todir="${src.main.py.thrift.dir}">
+			<fileset dir="${thrift.generated.java.src.dir}">
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clean" depends="clean-thrift-message" />
+	<target name="all" depends="copy-thrift-java, copy-thrift-perl, copy-thrift-python, compile-thrift-message-ruby,compile-thrift-message-cpp, compile-thrift-message-python, check_exist_openstack_common_lib, clean_openstack_pymodels" />
+</project>
+

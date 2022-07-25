@@ -1,0 +1,18 @@
+option java_package = "py.datanode.segment.membership.vote";
+
+import "broadcastlog.proto";
+
+enum State {
+    Init = 1;
+    Promised = 2;
+    Accepted = 3;
+    Frozen = 4;
+}
+
+message PBAcceptor {
+    required State state = 1;
+    required int32 maxN = 2;
+    required int32 lastN = 3;
+    optional PBMembership membership = 4;
+}
+

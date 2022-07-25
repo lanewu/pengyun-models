@@ -1,0 +1,31 @@
+name: Debian 11
+on: 
+  workflow_dispatch:
+  push:
+jobs:
+  pengyun-build-job:
+    runs-on: ubuntu-18.04
+    container:
+      image: debian:11
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up JDK 11 for x64
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          architecture: x64
+          cache: 'maven'
+      - name: Install required packages
+        run: |
+          apt-get update
+          apt-get install -y curl maven protobuf-compiler
+          curl -LO http://ftp.debian.org/debian/pool/main/t/thrift-compiler/thrift-compiler_0.9.1-2.1+b1_amd64.deb
+          dpkg -i thrift-compiler_0.9.1-2.1+b1_amd64.deb
+          
+      - name: Build with Maven
+        run: |
+          mvn versions:use-dep-version --batch-mode -DdepVersion=$(thrift --version | awk '{print $3}') -Dincludes=org.apache.thrift:libthrift
+          mvn versions:use-dep-version -DdepVersion=$(protoc --version | awk '{print $2}') -Dincludes=com.google.protobuf:protobuf-java
+          mvn package --batch-mode -Dmaven.test.skip=true

@@ -1,0 +1,14 @@
+//option java_package = "py.datanode.service.proto";
+option java_package = "py.proto";
+
+message PBWTSSuperBlockInfo {
+    required int32 segIndex=1;
+    required int64 VolumeId=2;
+    required int64 pcl=3;
+    required int64 ppl=4;
+}
+
+message PBWTSSuperBlock {
+    required int64 minValidChunkId=1;
+    repeated PBWTSSuperBlockInfo blockInfo=2;
+}

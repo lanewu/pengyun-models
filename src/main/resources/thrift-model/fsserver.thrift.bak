@@ -1,0 +1,344 @@
+include "shared.thrift"
+
+namespace java py.thrift.fsserver.service
+
+struct PageId_Thrift {
+    1: i64 volumeId, 
+    2: i32 segIndex, // the index of the segment within a volume
+    3: i32 pageIndex, // the index of the page within a segment
+    4: i64 blockId
+}
+
+struct Block_Thrift {
+  1: i64 id, // block id
+  2: i64 volumeId, // the id of the volume that this block belongs to
+  3: i32 segIndex, // the index of the segment within a volume
+  4: i32 startPageIndex, // the index of the first (inclusive) page within a segment
+  5: i32 endPageIndex, // the index of the last (inclusive) page within a segment
+  6: list<i64> pageAllocationMask,
+  7: i64 availableSize,
+  8: i64 accountId
+}
+
+
+struct Attribute_Thrift {
+    /* dev name, for instance, /dev/sdb1, no necessary */
+    1: i64 dev,
+    /*  for implementing hard-link */
+    2: i64 ino,
+    /* permission, u-id, directory/file, special */
+    3: i64 mode,
+    /*  the number of hard links */
+    4: i64 nlink,
+    /* user id at the local file system */
+    5: i64 uid,
+    /* group id  at the local file system*/
+    6: i64 gid,
+    /* special dev name, for instance, /dev/sdb1, no necessary */
+    7: i64 rdev,
+    /* file size. Dir size is 4096 */
+    8: i64 size,
+    /* local os's block size */
+    9: i64 blksize,
+    /* size of blksize */
+    10: i64 blocks,
+    /* access time */
+    11: i64 atime,
+    /* modified time */
+    12: i64 mtime,
+    /* creation time */
+    13: i64 ctime,
+    
+    14: i64 accountId
+}
+
+struct ListVolumesRequest {
+   1: i64 requestId,
+   2: i64 accountId
+}
+
+struct ListVolumesResponse {
+   1: i64 requestId,
+   2: list<shared.VolumeMetadata_Thrift> volumes
+}
+   
+struct InsertVolumeRequest {
+   1: i64 requestId,
+   2: shared.VolumeMetadata_Thrift volumeMetadata,
+   3: list<shared.SegmentMetadata_Thrift> segmentsMetadata,
+}
+   
+struct InsertVolumeResponse {
+   1:i64 requestId
+}
+
+exception FileOpException_Thrift {
+    1: optional byte errorCode,
+    2: optional string detail
+}
+
+struct GetAttributeRequest {
+  1: i64 requestId,
+  2: string path
+}
+
+struct GetAttributeResponse {
+  1: i64 requestId,
+  2: Attribute_Thrift attribute
+}
+
+struct ListDirRequest {
+  1: i64 requestId,
+  2: string path
+}
+
+struct ListDirResponse {
+  1: i64 requestId,
+  2: list<string> entries
+}
+
+struct MkdirRequest {
+  1: i64 requestId,
+  2: string path,
+  3: optional i64 mode,
+  4: i64 accountId
+}
+
+struct MkdirResponse {
+  1: i64 requestId,
+  2: Attribute_Thrift attribute
+}
+
+struct CreateFileRequest {
+  1: i64 requestId,
+  2: string path,
+  3: optional i64 mode,
+  4: optional i64 flags,
+  5: i64 accountId
+}
+
+struct CreateFileResponse {
+  1: i64 requestId,
+  2: Attribute_Thrift attribute
+}
+
+struct RmdirRequest {
+  1: i64 requestId,
+  2: string path
+}
+
+struct RmdirResponse {
+  1: i64 requestId
+}
+
+struct UnlinkRequest {
+  1: i64 requestId,
+  2: string path
+}
+
+struct UnlinkResponse {
+  1: i64 requestId
+}
+
+struct RenameRequest {
+  1: i64 requestId,
+  2: string currentPath,
+  3: string newPath
+}
+
+struct RenameResponse {
+  1: i64 requestId
+}
+
+struct GetFilePagesRequest {
+  1: i64 requestId,
+  2: string path,
+  3: i64 offset, 
+  4: i64 size
+}
+
+struct GetFilePagesResponse {
+  1: i64 requestId,
+  2: list<PageId_Thrift> pageIds,
+}
+
+struct PreallocateBlocksRequest {
+  1: i64 requestId,
+  2: i64 sessionId,  // a client continues to use the same session id until it exists or crash
+  3: i64 desiredSize, // the desired size that a client requests for
+  4: optional bool strict // if throw an exception when availabile space is less than the desired size
+}
+
+struct PreallocateBlocksResponse {
+  1: i64 requestId,
+  2: list<Block_Thrift> blocks,
+  3: i64 totalAvailableSpace // this is an estimated value
+}
+
+struct RenewBlocksRequest {
+  1: i64 requestId,
+  2: i64 sessionId,  // a client continues to use the same session id until it exists or crash
+  3: list<i64> blockIds  // a list of ids of blocks to be renewed
+}
+
+struct RenewBlocksResponse {
+  1: i64 requestId,
+  2: list<i64> blocksUnableToRenew
+}
+
+struct CommitFilePagesRequest {
+  1: i64 requestId,
+  2: i64 sessionId,  // a client session id
+  3: string path,
+  4: list<PageId_Thrift> pageIds // a list of ids of pages to be committed
+}
+
+struct CommitFilePagesResponse {
+  1: i64 requestId
+}
+
+struct GetDeletedFilesRequest {
+  1: i64 requestId
+}
+
+struct GetDeletedFilesResponse {
+  1: i64 requestId,
+  2: list<string> files
+}
+
+struct CleanupDeletedFilesRequest {
+  1: i64 requestId,
+  2: list<string> files
+}
+
+struct CleanupDeletedFilesResponse{
+  1: i64 requestId
+}
+
+struct GetExpiredBlocksRequest {
+  1: i64 requestId
+}
+
+struct GetExpiredBlocksResponse {
+  1: i64 requestId,
+  2: list<i64> blockIds
+}
+
+struct ReclaimBlocksRequest {
+  1: i64 requestId,
+  2: list<i64> blockIds
+}
+
+struct ReclaimBlocksResponse {
+  1: i64 requestId
+}
+
+struct ListBlocksRequest {
+  1: i64 requestId,
+  2: i64 currentBlockId,
+  3: i32 limitNumber
+}
+
+struct ListBlocksResponse {
+  1: i64 requestId,
+  2: list<Block_Thrift> blocks
+}
+
+exception PageUsedException_Thrift {
+    1: optional string detail
+}
+
+exception SpaceNotAvailableException_Thrift {
+    1: optional string detail
+}
+
+exception PathExistException_Thrift {
+    1: optional string detail
+}
+
+exception PathNotExistException_Thrift {
+    1: optional string detail
+}
+
+exception PathNotFileException_Thrift {
+    1: optional string detail
+}
+
+exception PathNotDirException_Thrift {
+    1: optional string detail
+} 
+
+service FileSystemService {
+    // Cachable Get attributes of a specified dir or file
+    GetAttributeResponse getAttribute(1: GetAttributeRequest request) throws (1:FileOpException_Thrift e),
+
+    // List all files or directories under a specified path
+    ListDirResponse listDir(1: ListDirRequest request) throws (1:FileOpException_Thrift e, 2: PathNotExistException_Thrift pnee, 3: PathNotDirException_Thrift pnde),
+
+    // Make a directory given its path and mode (What is mode? where do we define it)
+    /* sometimes the mode paramater doesn't indicates it is creating a directory, we have to set the directory bit in the mode */
+    MkdirResponse mkdir(1:MkdirRequest request) throws (1:FileOpException_Thrift e, 2: PathExistException_Thrift pee),
+
+    // Create a file, flag is passed by fuse client. The concrete value is not important. 
+    CreateFileResponse createFile(1:CreateFileRequest request) throws (1:FileOpException_Thrift e, 2: PathExistException_Thrift pee),
+
+    //Request pages so as to read data or write data to the existing position. A exception is thrown if the position and size is out of range
+    GetFilePagesResponse getFilePages(1:GetFilePagesRequest request) throws (1:FileOpException_Thrift e),
+
+    //After writing to data nodes, a client commits pages to indicate that these pages have been used
+    CommitFilePagesResponse commitFilePages(1:CommitFilePagesRequest request) throws (1:PageUsedException_Thrift e, 
+                                                                                      2:FileOpException_Thrift eft),
+    // remove a directory. Not recursively
+    RmdirResponse rmdir(1:RmdirRequest request) throws (1:FileOpException_Thrift e, 2: PathNotExistException_Thrift pnee),
+
+    // This api is essentially a operation to remove a file. Since a file might have hard links, 
+    // so this api is called unlink
+    UnlinkResponse unlink(1:UnlinkRequest request) throws (1:FileOpException_Thrift e),
+
+    // Rename a file or directory. Both pathes are absolute. 
+    RenameResponse rename(1: RenameRequest request) throws (1:FileOpException_Thrift e),
+
+    /* Preallocate blocks as a client request. the client needs to specify the desired size
+       the server will return a list of blocks. 
+       If "strict" is true and there are not enough space, a SpaceNotAvaiableException is thrown. 
+       Otherwise, it is up to the server to return blocks. 
+     */
+    PreallocateBlocksResponse preallocateBlocks(1: PreallocateBlocksRequest request) throws (1: SpaceNotAvailableException_Thrift bna),
+
+    /**
+     * a client tries to renew blocks it has. It is not necessary for a client to renew every block it curernt has.
+     * Otherwise, it is up to the service to grant the the lease to those blocks or not.
+     **/
+    RenewBlocksResponse renewBlocks(1: RenewBlocksRequest request), 
+
+    InsertVolumeResponse insertVolume(1:InsertVolumeRequest request),
+   
+    ListVolumesResponse listVolumes(1:ListVolumesRequest request),
+
+    /** 
+     * The following 4 APIs are designed for housekeeper to clean up delete files and reclaim expired blocks
+     **/
+     /** 
+     * Get a list of deleted files 
+     */
+    GetDeletedFilesResponse getDeletedFiles(1:GetDeletedFilesRequest request),
+    
+    /**
+     * request fss to clean up deleted files and release their spaces
+     */
+    CleanupDeletedFilesResponse cleanupDeletedFiles(1:CleanupDeletedFilesRequest request),
+
+    /**
+    * Get a list of blocks that have been expired 
+    */
+    GetExpiredBlocksResponse getExpiredBlocks(1:GetExpiredBlocksRequest request),
+
+    /**
+    * Reclaim expired blocks so that they can be re-allocated to other clients
+    */
+    ReclaimBlocksResponse reclaimBlocks(1:ReclaimBlocksRequest request),
+    
+    ListBlocksResponse listBlocks(1:ListBlocksRequest request),
+
+    void ping(),
+}

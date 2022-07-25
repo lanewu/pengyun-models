@@ -1,0 +1,31 @@
+<project name="pengyun-models" default="all" basedir=".">
+        <property environment="SystemVariable" />  
+	<echo message="${SystemVariable.PROTOBUF_HOME}" /> 
+	<property name="procotol.heartbeat.output.dir.java" value="${basedir}/src/main/java" />
+	<property name="protoc" value="${SystemVariable.PROTOBUF_HOME}" />
+	<property name="procotol.model.src.dir.java" value="${basedir}/src/main/resources/protocol-model" />
+
+	<target name="clean-procotol-message" description="Removes proc generated files.">
+		<delete dir="${procotol.heartbeat.output.dir.java}/py/proto" />
+	</target>
+
+	<!-- target: init -->
+	<target name="init" description="Sets up the initial structure." depends="clean-procotol-message">
+		<mkdir dir="${procotol.heartbeat.output.dir.java}/py/proto" />
+	</target>
+
+	<target name="compile-procotol-heartbeat-message-java" description="Compile procotol heartbeat message for java" depends="init">
+		<apply executable="${protoc}" parallel="false" failonerror="true">
+			<arg value="--java_out=${procotol.heartbeat.output.dir.java}" />
+			<arg value="-I${basedir}" />
+			<arg line="${procotol.model.src.dir.java}" />
+			<arg value="-I${basedir}/src/main/resources/protocol-model" />
+			<fileset dir="${procotol.model.src.dir.java}" includes="*.proto" />
+		</apply>
+	</target>
+
+
+	<target name="clean" depends="clean-procotol-message" />
+	<target name="all" depends="compile-procotol-heartbeat-message-java" />
+</project>
+

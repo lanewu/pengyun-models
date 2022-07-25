@@ -1,0 +1,232 @@
+// Generated from broadcastlog.proto
+
+namespace py.flatbuffer;
+
+enum PBIOUnitResult : int {
+  OK = 1,
+  OutOfRange = 2,
+  InputHasNoData = 3,
+  ChecksumMismatched = 4,
+  SecondaryNotStable = 5,
+  Free = 6,
+}
+
+enum PBBroadcastLogStatus : int {
+  Creating = 1,
+  Created = 2,
+  Committed = 3,
+  Abort = 4,
+  AbortConfirmed = 5,
+}
+
+enum PBResponseErrCode : int {
+  ServiceHasBeenShutdown = 1,
+  SegmentNotFound = 2,
+  ResourceExhausted = 3,
+  TimeOut = 4,
+  SendMessageError = 5,
+  NotRightStatus = 6,
+  InternalError = 7,
+  Good = 8,
+  SnapshotMismatch = 9,
+  BecomingSecondary = 10,
+  NewLinkCome = 11,
+}
+
+enum PBCopyPageStatus : int {
+  CopyPageDone = 1,
+  CopyPageInitializing = 2,
+  CopyPageProcessing = 3,
+  CopyPageTimeout = 4,
+  CopyPageAbort = 5,
+}
+
+table PBEndPoint {
+  hostName:string (required);
+  port:int;
+}
+
+table PBBroadcastLog {
+  logId:long;
+  offset:long;
+  checksum:long;
+  length:int;
+  logStatus:int;
+  snapshotId:int;
+  snapshotCreatedTime:long;
+}
+
+table PBBroadcastLogManager {
+  requestId:long;
+  broadcastLogs:[PBBroadcastLog];
+}
+
+table PBWriteRequestUnit {
+  requestId:long;
+  logId:long;
+  offset:long;
+  length:int;
+  data:string (required);
+  snapshotId:int;
+  snapshotCreatedTime:long;
+  checksum:long;
+}
+
+table PBMembership {
+  primary:long;
+  epoch:int;
+  generation:int;
+  secondaries:[long];
+}
+
+table PBWriteRequest {
+  requestId:long;
+  volumeId:long;
+  segIndex:int;
+  failTimes:int;
+  clId:long;
+  membership:PBMembership (required);
+  snapshotVersion:int;
+  requestUnits:[PBWriteRequestUnit];
+  broadcastManagers:[PBBroadcastLogManager];
+}
+
+table PBWriteResponseUnit {
+  requestId:long;
+  logId:long;
+  offset:long;
+  length:int;
+  logResult:int;
+}
+
+table PBWriteResponse {
+  requestId:long;
+  volumeId:long;
+  segIndex:int;
+  recvEndPoint:PBEndPoint (required);
+  errorCode:int;
+  resultOfLogs:[PBWriteResponseUnit];
+  processedLogManagers:[PBBroadcastLogManager];
+  membership:PBMembership;
+  snapshotJson:string;
+}
+
+table PBReadRequestUnit {
+  requestId:long;
+  offset:long;
+  length:int;
+}
+
+table PBReadRequest {
+  requestId:long;
+  volumeId:long;
+  segIndex:int;
+  failTimes:int;
+  snapshotId:int;
+  requestUnits:[PBReadRequestUnit];
+  logsToCommit:[long];
+  fromInternal:bool;
+}
+
+table PBReadResponseUnit {
+  requestId:long;
+  offset:long;
+  length:int;
+  result:int;
+  data:string;
+  checksum:long;
+}
+
+table PBReadResponse {
+  requestId:long;
+  recvEndPoint:PBEndPoint (required);
+  responseUnits:[PBReadResponseUnit];
+  errorCode:int;
+}
+
+table PBClonePageRequest {
+  requestId:long;
+  volumeId:long;
+  segIndex:int;
+  snapshotId:int;
+  pageIndex:[int];
+}
+
+table PBClonePageResponse {
+  requestId:long;
+  volumeId:long;
+  segIndex:int;
+  snapshotId:int;
+  success:bool;
+  page:[PBDataPage];
+}
+
+table PBDataPage {
+  pageIndex:int;
+  data:string;
+  checksum:long;
+  snapshotId:[int];
+  empty:bool;
+}
+
+table PBPushToSecondariesRequest {
+  requestId:long;
+  volumeId:long;
+  segIndex:int;
+  membership:PBMembership (required);
+  dataPage:[PBDataPage];
+}
+
+table PBPushToSecondariesResponse {
+  requestId:long;
+  success:bool;
+}
+
+table PBCopyPageRequest {
+  requestId:long;
+  sessionId:long;
+  volumeId:long;
+  segIndex:int;
+  copyPageUnitIndex:int;
+  errorCount:int;
+  snapshotVersion:int;
+  membership:PBMembership (required);
+  pageRequests:[PBPageRequest];
+}
+
+table PBPageRequest {
+  pageIndex:int;
+  currentSnapshotId:int;
+  checksum:long;
+  lastLogId:long;
+  data:string (required);
+  shadowTable:[PBShadowItem];
+}
+
+table PBShadowItem {
+  snapshotIds:[int];
+}
+
+table PBPageResponse {
+  pageIndex:int;
+  currentSnapshotId:int;
+  nextSnapshotId:int;
+  lastLogId:long;
+}
+
+table PBLogUnit {
+  pageIndexInUnit:int;
+  lastLogId:long;
+}
+
+table PBCopyPageResponse {
+  requestId:long;
+  sessionId:long;
+  copyPageUnitIndex:int;
+  status:int;
+  pageResponses:[PBPageResponse];
+  nexLogUnits:[PBLogUnit];
+  nextCopyPageUnitIndex:int;
+  nextBitmap:string;
+}
+

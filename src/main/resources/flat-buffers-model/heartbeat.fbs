@@ -1,0 +1,36 @@
+// Generated from heartbeat.proto
+
+namespace py.flatbuffer;
+
+table DataNodeHeartbeatRequest {
+  requestId:long;
+  volumeId:long;
+  segmentIndex:int;
+  epoch:int;
+  generation:int;
+}
+
+table DataNodeHeartbeatResponse {
+  requestId:long;
+  InstanceId:long;
+  resultCode:int;
+  returnEpoch:int;
+  returnMessage:string;
+}
+
+table TestRequest {
+    magic: long; 
+    requestid: long;
+    length: long;
+    offset: long;
+    data: string;
+}
+
+table TestResponse {
+    magic: long;
+    requestId: long;
+    responseId: long;
+    offset: long;
+    length: long;
+    data: string;
+}
