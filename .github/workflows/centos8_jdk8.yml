@@ -1,7 +1,11 @@
 name: CentOS 8
 on: 
-  push:
   workflow_dispatch:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/make_release.yml'
+
 jobs:
   pengyun-build-job:
     runs-on: ubuntu-18.04
