@@ -31,7 +31,7 @@ jobs:
 
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | sed -nre 's|.+/.+/v(.+)|\1|p')
 
       - name: Release on GitHub
         uses: softprops/action-gh-release@v1
@@ -41,4 +41,4 @@ jobs:
           #bodyPath: @todo automatically extract changes from changelog
           files: |
             LICENSE
-            /home/runner/work/pengyun-models/pengyun-models/target/pengyun-models-2.8.0.jar
+            /home/runner/work/pengyun-models/pengyun-models/target/pengyun-models-${{ steps.get_version.outputs.VERSION }}.jar
