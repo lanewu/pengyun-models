@@ -16,9 +16,29 @@ jobs:
           architecture: x64
           cache: 'maven'
       
-
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl protobuf-compiler
+          curl -LO http://old-releases.ubuntu.com/ubuntu/pool/universe/t/thrift-compiler/thrift-compiler_0.9.1-2.1_amd64.deb
+          sudo dpkg -i thrift-compiler_0.9.1-2.1_amd64.deb
+      
+      - name: Build with Maven
+        run: |
+          mvn versions:use-dep-version --batch-mode -DdepVersion=$(thrift --version | awk '{print $3}') -Dincludes=org.apache.thrift:libthrift
+          mvn versions:use-dep-version -DdepVersion=$(protoc --version | awk '{print $2}') -Dincludes=com.google.protobuf:protobuf-java
+          mvn package --batch-mode  -Dmaven.test.skip=true
 
       - name: Get the version
         id: get_version
-        run: |
-          echo $GITHUB_REF | cut -d / -f 3
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+
+      - name: Release on GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          name: pengyun-models ${{ steps.get_version.outputs.VERSION }}
+          body: Released pengyun-models ${{ steps.get_version.outputs.VERSION }}
+          #bodyPath: @todo automatically extract changes from changelog
+          files: |
+            LICENSE
+            /home/runner/work/pengyun-models/pengyun-models/target/pengyun-models-2.8.0.jar
